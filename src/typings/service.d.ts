@@ -35,15 +35,10 @@ declare namespace Service {
   }
 
   interface ResponseResult<T> extends RequestError {
-    /** 请求服务是否成功 */
-    isSuccess: boolean
-    /** 请求服务的错误类型 */
-    errorType: RequestErrorType
-    /** 错误码 */
-    code: RequestCode
-    /** 错误信息 */
-    message: string
-    /** 返回的数据 */
+    code: number
     data: T
+    msg: string
+    success: boolean
+    timestamp: string
   }
 }

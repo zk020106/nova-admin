@@ -9,8 +9,8 @@ export const DEFAULT_ALOVA_OPTIONS = {
 export const DEFAULT_BACKEND_OPTIONS = {
   codeKey: 'code',
   dataKey: 'data',
-  msgKey: 'message',
-  successCode: 200,
+  msgKey: 'msg',
+  successCode: '0',
 }
 
 /** 请求不成功各种状态的错误 */

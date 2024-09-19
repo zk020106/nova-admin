@@ -76,7 +76,7 @@ export function createAlovaInstance(
           const apiData = await response.json()
           // 请求成功
           if (apiData[_backendConfig.codeKey] === _backendConfig.successCode)
-            return handleServiceResult(apiData)
+            return apiData.data
 
           // 业务请求失败
           const errorResult = handleBusinessError(apiData, _backendConfig)

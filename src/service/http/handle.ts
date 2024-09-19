@@ -1,10 +1,7 @@
 import { fetchUpdateToken } from '@/service'
 import { useAuthStore } from '@/store'
 import { local } from '@/utils'
-import {
-  ERROR_NO_TIP_STATUS,
-  ERROR_STATUS,
-} from './config'
+import { ERROR_NO_TIP_STATUS, ERROR_STATUS } from './config'
 
 type ErrorStatus = keyof typeof ERROR_STATUS
 
@@ -56,12 +53,11 @@ export function handleBusinessError(data: Record<string, any>, config: Required<
  * @return {*} result
  */
 export function handleServiceResult(data: any, isSuccess: boolean = true) {
-  const result = {
+  return {
     isSuccess,
     errorType: null,
     ...data,
   }
-  return result
 }
 
 /**
