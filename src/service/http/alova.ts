@@ -14,6 +14,7 @@ import {
   handleServiceResult,
 } from './handle'
 
+const message = useMessage()
 const { onAuthRequired, onResponseRefreshToken } = createServerTokenAuthentication<VueHookType>({
   // 服务端判定token过期
   refreshTokenOnSuccess: {
@@ -76,7 +77,7 @@ export function createAlovaInstance(
           const apiData = await response.json()
           // 请求成功
           if (apiData[_backendConfig.codeKey] === _backendConfig.successCode)
-            return apiData.data
+            return apiData
 
           // 业务请求失败
           const errorResult = handleBusinessError(apiData, _backendConfig)
@@ -88,7 +89,7 @@ export function createAlovaInstance(
       },
       onError: (error, method) => {
         const tip = `[${method.type}] - [${method.url}] - ${error.message}`
-        window.$message?.warning(tip)
+        message?.warning(tip)
       },
 
       onComplete: async (_method) => {

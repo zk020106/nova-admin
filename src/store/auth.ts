@@ -1,14 +1,15 @@
 import { router } from '@/router'
-import { fetchLogin } from '@/service'
+import { accountLogin, getUserInfo } from '@/service/api/auth'
+import { useRouteStore } from '@/store/router'
 import { local } from '@/utils'
-import { useRouteStore } from './router'
 import { useTabStore } from './tab'
 
 interface AuthStatus {
   userInfo: Api.Login.Info | null
   token: string
 }
-export const useAuthStore = defineStore('auth-store', {
+
+export const useAuthStore = defineStore('menu-store', {
   state: (): AuthStatus => {
     return {
       userInfo: local.get('userInfo'),
@@ -54,12 +55,14 @@ export const useAuthStore = defineStore('auth-store', {
     /* 用户登录 */
     async login(username: string, password: string, captcha: string, uuid: string) {
       try {
-        const data = await fetchLogin({ username, password, captcha, uuid })
+        const { success, data } = await accountLogin({ username, password, captcha, uuid })
+        if (!success) {
+          return
+        }
         // 设置token
         local.set('accessToken', data.token)
-        // 获取用户信息
-
         // // 处理登录信息
+        await this.handleLoginInfo()
         // await this.handleLoginInfo(data)
       }
       catch (e) {
@@ -68,10 +71,14 @@ export const useAuthStore = defineStore('auth-store', {
     },
 
     /* 处理登录返回的数据 */
-    async handleLoginInfo(data: Api.Login.Info) {
-      // 将token和userInfo保存下来
+    async handleLoginInfo() {
+      // 获取用户信息
+      const { data } = await getUserInfo()
+      // 将userInfo保存下来
       local.set('userInfo', data)
-      this.userInfo = data
+      // 获取路由
+      const router = useRouter()
+      const { redirect, ...othersQuery } = router.currentRoute.value.query
 
       // 添加路由和菜单
       const routeStore = useRouteStore()
@@ -82,6 +89,9 @@ export const useAuthStore = defineStore('auth-store', {
       const query = route.query as { redirect: string }
       router.push({
         path: query.redirect || '/',
+        query: {
+          ...othersQuery,
+        },
       })
     },
   },

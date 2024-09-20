@@ -1,7 +1,8 @@
+import type { AppRoute } from '@/typings/route'
 import type { MenuOption } from 'naive-ui'
 import { router } from '@/router'
 import { staticRoutes } from '@/router/routes.static'
-import { fetchUserRoutes } from '@/service'
+import { getUserRoute } from '@/service/api/auth'
 import { useAuthStore } from '@/store/auth'
 import { $t, local } from '@/utils'
 import { createMenus, createRoutes, generateCacheRoutes } from './helper'
@@ -48,9 +49,7 @@ export const useRouteStore = defineStore('route-store', {
         }
 
         // Get user's route
-        const { data } = await fetchUserRoutes({
-          id: userInfo.id,
-        })
+        const { data } = await getUserRoute()
 
         if (!data)
           return
@@ -63,12 +62,13 @@ export const useRouteStore = defineStore('route-store', {
       }
     },
     async initAuthRoute() {
+      const message = useMessage()
       this.isInitAuthRoute = false
 
       // Initialize route information
       const rowRoutes = await this.initRouteInfo()
       if (!rowRoutes) {
-        window.$message.error($t(`app.getRouteError`))
+        message.error($t(`app.getRouteError`))
         return
       }
       this.rowRoutes = rowRoutes

@@ -8,7 +8,7 @@ import { encryptByRsa } from '@/utils/encrypt'
 const emit = defineEmits(['update:modelValue'])
 
 const authStore = useAuthStore()
-
+const message = useMessage()
 function toOtherForm(type: any) {
   emit('update:modelValue', type)
 }
@@ -68,12 +68,12 @@ function handleLogin() {
       isLoading.value = false
     })
   }
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  catch (err) {
-    getCaptcha()
+  catch (e) {
+    message.error(e)
     formValue.value.captcha = ''
   }
   finally {
+    getCaptcha()
     isLoading.value = false
   }
 }
@@ -92,7 +92,7 @@ function checkUserAccount() {
 }
 
 // 验证码过期定时器
-let timer
+let timer: ReturnType<typeof setTimeout>
 
 function startTimer(expireTime: number) {
   if (timer) {
@@ -121,7 +121,8 @@ const captchaImgBase64 = ref()
 
 // 获取验证码
 async function getCaptcha() {
-  const { uuid, img, expireTime } = await getImageCaptcha()
+  const { data } = await getImageCaptcha()
+  const { uuid, img, expireTime } = data
   formValue.value.uuid = uuid
   captchaImgBase64.value = img
   formValue.value.expired = false
@@ -134,7 +135,7 @@ async function getCaptcha() {
     <n-h2 depth="3" class="text-center">
       {{ $t('login.signInTitle') }}
     </n-h2>
-    <n-form ref="formRef" :rules="rules" :model="formValue" :show-label="false" size="large">
+    <n-form ref="formRef" :rules="rules" :model="formValue" :show-label="false" size="large" @keydown.enter.prevent="handleLogin">
       <n-form-item path="username">
         <n-input v-model:value="formValue.username" clearable :placeholder="$t('login.accountPlaceholder')" />
       </n-form-item>

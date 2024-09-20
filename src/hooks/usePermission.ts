@@ -6,7 +6,7 @@ export function usePermission() {
   const authStore = useAuthStore()
 
   function hasPermission(
-    permission: Entity.RoleType | Entity.RoleType[] | undefined,
+    permission: string,
   ) {
     if (!permission)
       return true

@@ -1,13 +1,15 @@
+import type { AppRoute } from '@/typings/route'
 import type { MenuOption } from 'naive-ui'
 import type { RouteRecordRaw } from 'vue-router'
 import { usePermission } from '@/hooks'
 import Layout from '@/layouts/index.vue'
+import { MenuTypeEnum } from '@/typings/api/menu/type'
 import { $t, arrayToTree, renderIcon } from '@/utils'
 import { clone, min, omit, pick } from 'radash'
 import { RouterLink } from 'vue-router'
 
 const metaFields: AppRoute.MetaKeys[]
-  = ['title', 'icon', 'requiresAuth', 'roles', 'keepAlive', 'hide', 'order', 'href', 'activeMenu', 'withoutTab', 'pinTab', 'menuType']
+  = ['title', 'icon', 'parentId', 'type', 'path', 'name', 'component', 'redirect', 'icon', 'isExternal', 'isCache', 'isHidden', 'permission', 'sort', 'status']
 
 function standardizedRoutes(route: AppRoute.RowRoute[]) {
   return clone(route).map((i) => {
@@ -25,7 +27,7 @@ export function createRoutes(routes: AppRoute.RowRoute[]) {
   let resultRouter = standardizedRoutes(routes)
 
   // Route permission filtering
-  resultRouter = resultRouter.filter(i => hasPermission(i.meta.roles))
+  resultRouter = resultRouter.filter(i => hasPermission(i.meta.permission))
 
   // Generate routes, no need to import files for those with redirect
   const modules = import.meta.glob('@/views/**/*.vue')
@@ -61,7 +63,7 @@ export function createRoutes(routes: AppRoute.RowRoute[]) {
 // Generate an array of route names that need to be kept alive
 export function generateCacheRoutes(routes: AppRoute.RowRoute[]) {
   return routes
-    .filter(i => i.keepAlive)
+    .filter(i => i.isCache)
     .map(i => i.name)
 }
 
@@ -70,16 +72,16 @@ function setRedirect(routes: AppRoute.Route[]) {
     if (route.children) {
       if (!route.redirect) {
         // Filter out a collection of child elements that are not hidden
-        const visibleChilds = route.children.filter(child => !child.meta.hide)
+        const visibleChilds = route.children.filter(child => !child.meta.isHidden)
 
         // Redirect page to the path of the first child element by default
         let target = visibleChilds[0]
 
         // Filter out pages with the order attribute
-        const orderChilds = visibleChilds.filter(child => child.meta.order)
+        const orderChilds = visibleChilds.filter(child => child.meta.sort)
 
         if (orderChilds.length > 0)
-          target = min(orderChilds, i => i.meta.order!) as AppRoute.Route
+          target = min(orderChilds, i => i.meta.sort!) as AppRoute.Route
 
         if (target)
           route.redirect = target.path
@@ -95,7 +97,7 @@ export function createMenus(userRoutes: AppRoute.RowRoute[]) {
   const resultMenus = standardizedRoutes(userRoutes)
 
   // filter menus that do not need to be displayed
-  const visibleMenus = resultMenus.filter(route => !route.meta.hide)
+  const visibleMenus = resultMenus.filter(route => !route.meta.isHidden)
 
   // generate side menu
   return arrayToTree(transformAuthRoutesToMenus(visibleMenus))
@@ -106,14 +108,14 @@ function transformAuthRoutesToMenus(userRoutes: AppRoute.Route[]) {
   const { hasPermission } = usePermission()
   return userRoutes
     // Filter out side menus without permission
-    .filter(i => hasPermission(i.meta.roles))
+    .filter(i => hasPermission(i.meta.permission))
     //  Sort the menu according to the order size
     .sort((a, b) => {
-      if (a.meta && a.meta.order && b.meta && b.meta.order)
-        return a.meta.order - b.meta.order
-      else if (a.meta && a.meta.order)
+      if (a.meta && a.meta.sort && b.meta && b.meta.sort)
+        return a.meta.sort - b.meta.sort
+      else if (a.meta && a.meta.sort)
         return -1
-      else if (b.meta && b.meta.order)
+      else if (b.meta && b.meta.sort)
         return 1
       else return 0
     })
@@ -123,7 +125,7 @@ function transformAuthRoutesToMenus(userRoutes: AppRoute.Route[]) {
         id: item.id,
         pid: item.pid,
         label:
-          (!item.meta.menuType || item.meta.menuType === 'page')
+          (!item.meta.type || item.meta.type === MenuTypeEnum.menu)
             ? () =>
                 h(
                   RouterLink,

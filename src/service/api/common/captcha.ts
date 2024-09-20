@@ -7,7 +7,7 @@ const BASE_URL = '/captcha'
 
 /** @desc 获取图片验证码 */
 export function getImageCaptcha() {
-  return request.Get<T.ImageCaptchaResp>(`${BASE_URL}/image`)
+  return request.Get<Service.ResponseResult<T.ImageCaptchaResp>>(`${BASE_URL}/image`)
 }
 
 /** @desc 获取短信验证码 */

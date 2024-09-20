@@ -9,6 +9,9 @@ export default antfu(
         'ts/no-unused-expressions': ['error', { allowShortCircuit: true }],
       },
     },
+    rules: {
+      'no-unused-vars': 'off',
+    },
     vue: {
       overrides: {
         'vue/no-unused-refs': 'off', // 暂时关闭，等待vue-lint的分支合并

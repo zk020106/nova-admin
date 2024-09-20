@@ -6,7 +6,7 @@ interface Login {
   captcha: string
   uuid: string
 }
-
+// todo 后续替换掉
 export function fetchLogin(data: Login) {
   return request.Post<Api.Login.LoginInfo>('/auth/account', data)
 }
@@ -16,8 +16,4 @@ export function fetchUpdateToken(data: any) {
     authRole: 'refreshToken',
   }
   return method
-}
-
-export function fetchUserRoutes(params: { id: number }) {
-  return request.Get<Service.ResponseResult<AppRoute.RowRoute[]> >('/getUserRoutes', { params })
 }

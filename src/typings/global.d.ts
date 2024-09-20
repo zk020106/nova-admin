@@ -1,4 +1,6 @@
 /* 存放数据库实体表类型， 具体内容在 ./entities */
+import type { UserInfo } from '@/service/api/auth'
+
 declare namespace Entity {
 }
 
@@ -35,7 +37,7 @@ declare namespace Storage {
 
   interface Local {
     /* 存储用户信息 */
-    userInfo: Api.Login.Info
+    userInfo: UserInfo
     /* 存储访问token */
     accessToken: string
     /* 存储刷新token */
